@@ -1,0 +1,33 @@
+# Circuit Schematic OCR - Dependencies
+# ========================
+
+# Core dependencies
+kiutils>=1.4.0          # KiCad file parser
+sexpdata>=1.0.0         # S-expression parser
+Pillow>=10.0.0          # Image processing
+opencv-python>=4.8.0    # Computer vision
+numpy>=1.24.0           # Numerical computing
+scipy>=1.10.0           # Scientific computing
+
+# Rendering
+cairosvg>=2.7.0         # SVG to PNG conversion
+
+# Data & API
+requests>=2.31.0        # HTTP requests (GitHub API)
+tqdm>=4.65.0            # Progress bars
+pyyaml>=6.0             # YAML config parsing
+jsonlines>=4.0.0        # JSON lines format
+
+# PaddlePaddle & PaddleOCR
+paddlepaddle-gpu>=2.6.0  # PaddlePaddle with GPU support
+paddleocr>=2.7.0         # PaddleOCR
+
+# SPICE verification (optional)
+# ngspice must be installed separately: https://ngspice.sourceforge.io/
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Documentation
+markdown>=3.5

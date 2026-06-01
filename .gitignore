@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data (using Git LFS for large files)
+# data/ directories are tracked via Git LFS
+data/raw/
+data/rendered/
+data/degraded_*/
+data/synthetic_*/
+data/annotations_*/
+# Keep train/val/test splits
+# data/train/
+# data/val/
+# data/test/
+# PNG/JPG tracked via Git LFS
+# *.png
+# *.jpg
+# *.jpeg
+
+# Model weights
+*.pdparams
+*.pdopt
+*.pdmodel
+*.inference/
+output/
+pretrain_models/
+
+# Logs
+*.log
+runs/
+wandb/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.bak

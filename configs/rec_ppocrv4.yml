@@ -1,0 +1,94 @@
+# PP-OCRv4 Recognition Fine-tuning Config for Circuit Schematics
+# Special focus on electronic symbols: Ω, μ, ±, °, etc.
+# ================================================================
+
+Global:
+  use_gpu: true
+  epoch_num: 200
+  log_smooth_window: 20
+  print_batch_step: 10
+  save_model_dir: ./output/rec_circuit/
+  save_epoch_step: 10
+  eval_batch_step: [0, 500]
+  pretrained_model: ./pretrain_models/ch_PP-OCRv4_rec_train
+  character_dict_path: ./data/char_dict.txt
+  max_text_length: 100
+  use_space_char: true
+
+Architecture:
+  model_type: rec
+  algorithm: SVTR_LCNet
+  Backbone:
+    name: MobileNetV1Enhance
+    scale: 0.5
+  Head:
+    name: MultiHead
+    head_list:
+      - CTCHead:
+          Neck:
+            name: svtr
+            dims: 64
+            depth: 2
+            hidden_dims: 120
+            use_guide: true
+          Head:
+            fc_decay: 0.00001
+      - SARHead:
+          enc_dim: 512
+          max_text_length: 100
+
+Loss:
+  name: MultiLoss
+  loss_config_list:
+    - CTCLoss: null
+    - SARLoss: null
+
+Optimizer:
+  name: Adam
+  lr:
+    learning_rate: 0.001
+    warmup_epoch: 5
+  regularizer:
+    name: L2
+    factor: 0.00001
+
+Train:
+  dataset:
+    name: SimpleDataSet
+    data_dir: ./data/train/
+    label_file_list:
+      - ./data/train_rec_label.txt
+    transforms:
+      - DecodeImage:
+          img_mode: BGR
+          channel_first: false
+      - RecAug: null
+      - CTCLabelEncode: null
+      - RecResizeImg:
+          image_shape: [3, 48, 320]
+      - KeepKeys:
+          keep_keys: ['image', 'label', 'length']
+  loader:
+    shuffle: true
+    batch_size_per_card: 128
+    num_workers: 4
+
+Eval:
+  dataset:
+    name: SimpleDataSet
+    data_dir: ./data/val/
+    label_file_list:
+      - ./data/val_rec_label.txt
+    transforms:
+      - DecodeImage:
+          img_mode: BGR
+          channel_first: false
+      - CTCLabelEncode: null
+      - RecResizeImg:
+          image_shape: [3, 48, 320]
+      - KeepKeys:
+          keep_keys: ['image', 'label', 'length']
+  loader:
+    shuffle: false
+    batch_size_per_card: 128
+    num_workers: 4

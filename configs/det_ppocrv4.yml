@@ -1,0 +1,98 @@
+# PP-OCRv4 Detection Fine-tuning Config for Circuit Schematics
+# =============================================================
+
+Global:
+  use_gpu: true
+  epoch_num: 200
+  log_smooth_window: 20
+  print_batch_step: 10
+  save_model_dir: ./output/det_circuit/
+  save_epoch_step: 10
+  eval_batch_step: [0, 500]
+  pretrained_model: ./pretrain_models/ch_PP-OCRv4_det_train
+  character_dict_path: ./data/char_dict.txt
+  max_text_length: 200
+  use_space_char: true
+
+Architecture:
+  model_type: det
+  algorithm: DB
+  Backbone:
+    name: MobileNetV3
+    scale: 0.5
+    model_name: large
+  Neck:
+    name: RSEFPN
+    out_channels: 96
+  Head:
+    name: DBHead
+    k: 50
+
+Loss:
+  name: DBLoss
+  balance_loss: true
+  main_loss_type: DiceLoss
+  alpha: 5
+  beta: 10
+  ohem_ratio: 3
+
+Optimizer:
+  name: Adam
+  lr:
+    learning_rate: 0.001
+    warmup_epoch: 5
+  regularizer:
+    name: L2
+    factor: 0.0001
+
+Train:
+  dataset:
+    name: SimpleDataSet
+    data_dir: ./data/train/
+    label_file_list:
+      - ./data/train_det_label.txt
+    transforms:
+      - DecodeImage:
+          img_mode: BGR
+          channel_first: false
+      - DetLabelEncode: null
+      - IaaAugment: null
+      - RandomCropData:
+          max_tries: 10
+          min_crop_side_ratio: 0.1
+      - MakeBorderMap:
+          shrink_ratio: 0.4
+          thresh_min: 0.3
+          thresh_max: 0.7
+      - NormalizeImage:
+          std: [0.229, 0.224, 0.225]
+          mean: [0.485, 0.456, 0.406]
+          order: hwc
+      - ToCHWImage: null
+  loader:
+    shuffle: true
+    batch_size_per_card: 16
+    num_workers: 4
+
+Eval:
+  dataset:
+    name: SimpleDataSet
+    data_dir: ./data/val/
+    label_file_list:
+      - ./data/val_det_label.txt
+    transforms:
+      - DecodeImage:
+          img_mode: BGR
+          channel_first: false
+      - DetLabelEncode: null
+      - DetResizeForTest:
+          image_shape: [736, 736]
+      - NormalizeImage:
+          std: [0.229, 0.224, 0.225]
+          mean: [0.485, 0.456, 0.406]
+          order: hwc
+      - ToCHWImage: null
+  loader:
+    shuffle: false
+    batch_size_per_card: 16
+    num_workers: 4
